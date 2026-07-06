@@ -1,0 +1,34 @@
+services:
+  server:
+    build:
+      context: .
+      target: server
+    image: robotsim-server:15.2.2
+    network_mode: host
+    command: [ "rcssserver" ]
+
+  monitor:
+    build:
+      context: .
+      target: monitor
+    image: robotsim-monitor:15.1.1
+    network_mode: host
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    # command: [ "sh", "-c", "rcssmonitor -c --server-host 127.0.0.1 --server-port 6000" ]
+    command: [ "sh", "-c", "sleep 1 && rcssmonitor -c --server-host 127.0.0.1 --server-port 6000" ]
+
+  agent:
+    build:
+      context: .
+      target: agent
+    image: robotsim-agent
+    network_mode: host
+    volumes:
+      - ./uva_base_v13.2:/workspace/uva_base_v13.2
+    working_dir: /workspace/uva_base_v13.2
+    stdin_open: true
+    tty: true
