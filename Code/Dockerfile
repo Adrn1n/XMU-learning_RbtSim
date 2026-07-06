@@ -22,6 +22,6 @@ RUN tar -xf rcssmonitor-15.1.1.tar && cd rcssmonitor-15.1.1 && CXXFLAGS="-std=gn
 CMD ["rcssmonitor", "--server", "server"]
 
 FROM base AS agent
-RUN apt-get update && apt-get install -y libboost-dev libboost-system-dev libboost-filesystem-dev zlib1g-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libboost-dev libboost-system-dev libboost-filesystem-dev zlib1g-dev tcsh && rm -rf /var/lib/apt/lists/*
 WORKDIR /workspace/uva_base_v13.2
 CMD ["/bin/bash"]
