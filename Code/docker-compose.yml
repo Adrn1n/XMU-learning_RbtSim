@@ -28,7 +28,7 @@ services:
     image: robotsim-agent
     network_mode: host
     volumes:
-      - ./uva_base_v13.2:/workspace/uva_base_v13.2
-    working_dir: /workspace/uva_base_v13.2
+      - ./uva_base_v13.2/:/workspace/uva_base_v13.2/
+    working_dir: /workspace/uva_base_v13.2/
     stdin_open: true
     tty: true
