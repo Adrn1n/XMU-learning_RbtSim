@@ -1,4 +1,15 @@
 rcssmonitor-15.1.1.tar
 rcssserver-15.2.2.tar
 uva_base_hfut_v13.2.tar.gz
-uva_base_v13.2/
+
+*.o
+
+uva_base_v13.2/config.status
+uva_base_v13.2/config.log
+uva_base_v13.2/stamp-h1
+uva_base_v13.2/libtool
+uva_base_v13.2/Makefile
+uva_base_v13.2/src/.deps
+uva_base_v13.2/src/Makefile
+uva_base_v13.2/src/trilearn_coach
+uva_base_v13.2/src/trilearn_player
