@@ -10,5 +10,5 @@ CXXFLAGS="-std=gnu++98" CPPFLAGS="-I/usr/include" LDFLAGS="-L/usr/lib/aarch64-li
 make -j1
 make install
 
-chmod u+x team1/run.sh
+chmod u+x run.sh
 ./run.sh
