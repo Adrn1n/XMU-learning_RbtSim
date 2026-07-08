@@ -41,6 +41,8 @@
 #include <cstdlib> //cstdlib是C++里面的一个常用函数库， 等价于C中的<stdlib.h>,stdlib.h可以提供一些函数与符号常量，
 #include <cstring> //<cstring>是C标准库头文件<string.h>的C++标准库版本  包含了strcmp、strchr、strstr等操作
 #include <string.h> // C版本头文件 对应基于char*的字符串处理函数
+#include <cmath> //
+//
 
 #ifdef __CYGWIN__
 // cygwin is not win32
@@ -62,11 +64,57 @@ int lastCycle = 0;
 int kickWait = 0;
 int turnToSeeGoal = 0;
 int iSide = 0;//1:left;2:right
+/*
+*/
+int goalieHasBall=0;
+const double PI=std::acos(-1);
+//
 
 //极坐标变为直角坐标
 void poly2vector(double dLen, double dAngle, double &dX, double &dY) {
 	
+/*
+*/
+double rad=dAngle*PI/180;
+dX=dLen*std::cos(rad);
+dY=dLen*std::sin(rad);
+//
 }
+/*
+*/
+void getHomePosition(int id, int side, double &x, double &y) {
+	switch (id) {
+	case 1: // 守门员
+		x = -45; y = 0;
+		break;
+	case 2: // 左后卫
+		x = -30; y = -15;
+		break;
+	case 3: // 右后卫
+		x = -30; y = 15;
+		break;
+	case 4: // 中场
+		x = -18; y = 0;
+		break;
+	case 5: // 左前锋
+		x = -5; y = -10;
+		break;
+	case 6: // 右前锋
+		x = -5; y = 10;
+		break;
+	default:
+		x = -3; y = 0;
+		break;
+	}
+}
+char opponentGoalSide() {
+	if (iSide == 1) {
+		return 'r'; // 左队进攻右球门
+	} else {
+		return 'l'; // 右队进攻左球门
+	}
+}
+//
 
 class Client {
 private:
@@ -114,7 +162,9 @@ public: // 构造函数初始化列表以一个冒号开始，接着是以逗号
 	}
 
 	void run() {
-		char command[20];
+		//char command[20];
+		char command[128];
+//
 		if (iSide == 1) {
 			if (iPlayerId == 1) {
 				sprintf(command, "(init team1 (goalie))");
@@ -134,6 +184,7 @@ public: // 构造函数初始化列表以一个冒号开始，接着是以逗号
 		}
 		if (!sendCmd(command))
 			return;
+/*
 		if (iPlayerId == 1) {
 			sprintf(command, "(move -45 0)");
 		}
@@ -142,6 +193,14 @@ public: // 构造函数初始化列表以一个冒号开始，接着是以逗号
 		}
 		if (!sendCmd(command))
 			return;
+*/
+		double homeX = 0;
+		double homeY = 0;
+		getHomePosition(iPlayerId, iSide, homeX, homeY);
+		sprintf(command, "(move %.1f %.1f)", homeX, homeY);
+		if (!sendCmd(command))
+			return;
+//
 		messageLoop(); // 函数  消息循环 踢球中。。。
 	}
 
@@ -252,6 +311,7 @@ private:
 		}
 
 
+/*
 		if (iPlayerId == 1) {
 			//守门员
 			if (std::strncmp(msg, "(see ", 5)) {
@@ -290,6 +350,80 @@ private:
 					return;
 				return;
 			}
+*/
+			if (iPlayerId == 1) {
+				// 守门员逻辑
+				if (std::strncmp(msg, "(see ", 5)) {
+					return;
+				}
+				double ball_dist = 0;
+				double ball_dir = 0;
+				double goal_dist = 0;
+				double goal_dir = 0;
+				char command[128];
+				// 寻找对方球门，用于扑到球后大脚开球/射门
+				char *pgoal = NULL;
+				if (opponentGoalSide() == 'r') {
+					pgoal = strstr(msg, "(goal r)");
+					if (pgoal != 0) {
+						std::sscanf(pgoal, "(goal r) %lf %lf", &goal_dist, &goal_dir);
+					}
+				} else {
+					pgoal = strstr(msg, "(goal l)");
+					if (pgoal != 0) {
+						std::sscanf(pgoal, "(goal l) %lf %lf", &goal_dist, &goal_dir);
+					}
+				}
+				// 如果刚刚扑到球，优先把球踢向对方球门
+				if (goalieHasBall) {
+					if (pgoal != 0) {
+						sprintf(command, "(kick 100 %lf)", goal_dir);
+						if (!sendCmd(command))
+							return;
+						goalieHasBall = 0;
+						return;
+					} else {
+						sprintf(command, "(turn 60)");
+						if (!sendCmd(command))
+							return;
+						return;
+					}
+				}
+				char *pball = strstr(msg, "(ball)");
+				if (pball == 0) {
+					sprintf(command, "(turn 60)");
+					if (!sendCmd(command))
+						return;
+					return;
+				}
+				// 看见球
+				if (std::sscanf(pball, "(ball) %lf %lf", &ball_dist, &ball_dir) != 2) {
+					printf("get ball error\n");
+					return;
+				}
+				// 球很近时扑球
+				if (ball_dist < 3.0) {
+					sprintf(command, "(catch %lf)", ball_dir);
+					if (!sendCmd(command))
+						return;
+					goalieHasBall = 1;   // 简化处理：认为扑球成功，下一轮尝试开大脚
+					return;
+				}
+				// 如果球不在正前方，先转向球
+				if (ball_dir > 10 || ball_dir < -10) {
+					sprintf(command, "(turn %lf)", ball_dir);
+					if (!sendCmd(command))
+						return;
+					return;
+				}
+				// 球在前方但较远时，适当向球移动
+				if (ball_dist < 15.0) {
+					sprintf(command, "(dash 60)");
+					if (!sendCmd(command))
+						return;
+					return;
+				}
+//
 		} else {
 			if (!std::strncmp(msg, "(see ", 5)) {
 				//see
@@ -311,13 +445,16 @@ private:
 						double goal_dir = 0;
 						double ball_dist = 0;
 						double ball_dir = 0;
-						char command[20];
+						//char command[20];
+						char command[128];
+//
 						int len;
 						int canSeeGoal;
 						//kick_off
 						lastCycle = currentCycle;
 						//search goal
 						char *pgoal;
+/*
 						pgoal = strstr(msg, "(goal r)");
 						if (pgoal != 0) {
 							if (std::sscanf(pgoal, "(goal r) %lf %lf",
@@ -328,6 +465,31 @@ private:
 						} else {
 							canSeeGoal = 0;
 						}
+*/
+						if (opponentGoalSide() == 'r') {
+							pgoal = strstr(msg, "(goal r)");
+							if (pgoal != 0) {
+								if (std::sscanf(pgoal, "(goal r) %lf %lf",
+										&goal_dist, &goal_dir) != 2) {
+									printf("get goal error\n");
+								}
+								canSeeGoal = 1;
+							} else {
+								canSeeGoal = 0;
+							}
+						} else {
+							pgoal = strstr(msg, "(goal l)");
+							if (pgoal != 0) {
+								if (std::sscanf(pgoal, "(goal l) %lf %lf",
+										&goal_dist, &goal_dir) != 2) {
+									printf("get goal error\n");
+								}
+								canSeeGoal = 1;
+							} else {
+								canSeeGoal = 0;
+							}
+						}
+//
 						char *pball;
 						if (!turnToSeeGoal) {
 							pball = strstr(msg, "(ball)");
