@@ -561,7 +561,7 @@ static void print_usage(const char *prog)
     cout << endl;
     cout << "Default:" << endl;
     cout << "  MODE      = one" << endl;
-    cout << "  TEAM      = lab2_2" << endl;
+    cout << "  TEAM      = lab2" << endl;
     cout << "  SERVER_IP = 127.0.0.1" << endl;
     cout << endl;
     cout << "MODE:" << endl;
@@ -569,13 +569,13 @@ static void print_usage(const char *prog)
     cout << "  two    two players pass twice then shoot" << endl;
     cout << endl;
     cout << "Normally, do not run this program manually." << endl;
-    cout << "Use ./start_lab2_2.sh instead." << endl;
+    cout << "Use ./lab2_2.sh instead." << endl;
 }
 
 int main(int argc, char *argv[])
 {
     string mode = "one";
-    string team = "lab2_2";
+    string team = "lab2";
     string server_ip = "127.0.0.1";
 
     if (argc >= 2)
@@ -640,7 +640,7 @@ int main(int argc, char *argv[])
     }
 
     cout << "============================================" << endl;
-    cout << " Lab2_2 RoboCup Auto Player" << endl;
+    cout << " Lab2 RoboCup Auto Player" << endl;
     cout << " Team   : " << team << endl;
     cout << " Server : " << server_ip << ":" << server_port << endl;
     cout << " Mode   : " << mode << endl;

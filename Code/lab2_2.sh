@@ -1,5 +1,5 @@
 CLIENT="./client"
-TEAM="lab2_2"
+TEAM="lab2"
 SERVER_IP="127.0.0.1"
 
 clear
