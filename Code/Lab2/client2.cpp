@@ -14,28 +14,6 @@
 
 using namespace std;
 
-/*
-    RoboCup Soccer Simulator Lab3 自动客户端
-
-    设计原则：
-        1. 一个 client 进程 = 一个球员。
-        2. client.cpp 只负责“单个球员如何决策”。
-        3. start_lab3.sh 负责交互选择任务，并启动 1 个或 2 个 client 进程。
-
-    支持模式：
-        one:
-            单人任务：
-                球员从后场追球、带球到前场；
-                距离对方球门小于 20 米时射门。
-
-        two:
-            双人任务：
-                1 号传给 2 号；
-                2 号传回 1 号；
-                1 号带球推进；
-                距离对方球门小于 20 米时射门。
-*/
-
 static bool verbose = false;
 
 static bool starts_with(const string &s, const string &prefix)
@@ -163,21 +141,6 @@ static string cmd_say(const string &s)
     return "(say " + s + ")";
 }
 
-/*
-    从 see 消息中解析对象。
-
-    常见格式：
-        ((b) 10.5 -20)
-        ((g r) 35.2 5)
-        ((g l) 35.2 -5)
-        ((p "lab3" 2) 12.0 -30)
-
-    key 例子：
-        "((b)"
-        "((g r)"
-        "((g l)"
-        "((p \"lab3\" 2)"
-*/
 static bool parse_object_by_key(const string &msg,
                                 const string &key,
                                 double &dist,
@@ -598,7 +561,7 @@ static void print_usage(const char *prog)
     cout << endl;
     cout << "Default:" << endl;
     cout << "  MODE      = one" << endl;
-    cout << "  TEAM      = lab3" << endl;
+    cout << "  TEAM      = lab2_2" << endl;
     cout << "  SERVER_IP = 127.0.0.1" << endl;
     cout << endl;
     cout << "MODE:" << endl;
@@ -606,33 +569,13 @@ static void print_usage(const char *prog)
     cout << "  two    two players pass twice then shoot" << endl;
     cout << endl;
     cout << "Normally, do not run this program manually." << endl;
-    cout << "Use ./start_lab3.sh instead." << endl;
+    cout << "Use ./start_lab2_2.sh instead." << endl;
 }
 
-/*
-    参数规则：
-
-        ./client
-            默认 one 模式，team=lab3，server=127.0.0.1
-
-        ./client one
-            单人任务模式
-
-        ./client two
-            双人任务模式中的一个球员进程
-
-        ./client two lab3 127.0.0.1
-            指定模式、队名、服务器 IP
-
-    注意：
-        即使是 two 模式，一个 client 进程也只代表一个球员。
-        要两个球员，必须启动两个 client 进程。
-        这个工作由 start_lab3.sh 完成。
-*/
 int main(int argc, char *argv[])
 {
     string mode = "one";
-    string team = "lab3";
+    string team = "lab2_2";
     string server_ip = "127.0.0.1";
 
     if (argc >= 2)
@@ -697,7 +640,7 @@ int main(int argc, char *argv[])
     }
 
     cout << "============================================" << endl;
-    cout << " Lab3 RoboCup Auto Player" << endl;
+    cout << " Lab2_2 RoboCup Auto Player" << endl;
     cout << " Team   : " << team << endl;
     cout << " Server : " << server_ip << ":" << server_port << endl;
     cout << " Mode   : " << mode << endl;
